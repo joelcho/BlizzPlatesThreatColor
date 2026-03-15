@@ -1,0 +1,12 @@
+## Interface: 120001
+## Title: BlizzPlatesThreatColor
+## Notes: 内置血条仇恨染色
+## Author: Joel
+## Version: 1.0.0
+## SavedVariables: BlizzPlatesThreatColorDB
+
+# Lib
+embeds.xml
+
+BlizzPlatesThreatColor.lua
+BlizzPlatesThreatColor_Settings.lua
