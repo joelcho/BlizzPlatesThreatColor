@@ -15,6 +15,11 @@ addon.DEFAULT_COLORS = {
 		NO_THREAT      = { r = 0.0, g = 1.0, b = 0.0 }, -- 绿色
 		GAINING_THREAT = { r = 1.0, g = 1.0, b = 0.0 }, -- 黄色
 		HAS_THREAT     = { r = 1.0, g = 0.0, b = 0.0 }, -- 红色
+	},
+	-- 目标颜色
+	TARGET = {
+		TARGET      = { r = 0.0, g = 1.0, b = 1.0 }, -- 淡蓝色
+		FOCUS       = { r = 1.0, g = 0.0, b = 1.0 }, -- 品红
 	}
 }
 
@@ -25,6 +30,9 @@ addon.InitDB = function()
 	end
 	if not BlizzPlatesThreatColorDB.colors then
 		BlizzPlatesThreatColorDB.colors = CopyTable(addon.DEFAULT_COLORS)
+	end
+	if not BlizzPlatesThreatColorDB.colors.TARGET then
+		BlizzPlatesThreatColorDB.colors.TARGET = addon.DEFAULT_COLORS.TARGET
 	end
 end
 
@@ -45,6 +53,11 @@ addon.RegisterSettings = function()
 		{ key = "DPS_NO_THREAT", label = "无仇恨", desc = "DPS/治疗没有仇恨时的颜色" },
 		{ key = "DPS_GAINING_THREAT", label = "即将获得", desc = "DPS/治疗即将获得仇恨时的颜色" },
 		{ key = "DPS_HAS_THREAT", label = "获得仇恨", desc = "DPS/治疗获得仇恨时的颜色" },
+	}
+
+	local TARGET_COLOR_CONFIGS = {
+		{ key = "TARGET_TARGET", label = "目标", desc = "目标血条颜色" },
+		{ key = "TARGET_FOCUS", label = "焦点", desc = "焦点血条颜色" },
 	}
 
 	local SettingsLib = addon.SettingsLib
@@ -112,5 +125,36 @@ addon.RegisterSettings = function()
 		end,
 		colorizeLabel = true,
 		parentSection = dpsSection,
+	})
+
+	-- 目标颜色部分
+	local targetSection = SettingsLib:CreateExpandableSection(category, {
+		name = "|cff00ffff目标颜色|r",
+		expanded = true,
+		colorizeTitle = true,
+	})
+
+	SettingsLib:CreateColorOverrides(category, {
+		entries = TARGET_COLOR_CONFIGS,
+		hasOpacity = false,
+		getColor = function(key)
+			local subKey = key:match("^TARGET_(.*)$")
+			local color = BlizzPlatesThreatColorDB.colors.TARGET[subKey]
+			return color.r, color.g, color.b
+		end,
+		setColor = function(key, r, g, b)
+			local subKey = key:match("^TARGET_(.*)$")
+			BlizzPlatesThreatColorDB.colors.TARGET[subKey].r = r
+			BlizzPlatesThreatColorDB.colors.TARGET[subKey].g = g
+			BlizzPlatesThreatColorDB.colors.TARGET[subKey].b = b
+			addon.UpdateAllNamePlates()
+		end,
+		getDefaultColor = function(key)
+			local subKey = key:match("^TARGET_(.*)$")
+			local color = addon.DEFAULT_COLORS.TARGET[subKey]
+			return color.r, color.g, color.b
+		end,
+		colorizeLabel = true,
+		parentSection = targetSection,
 	})
 end
