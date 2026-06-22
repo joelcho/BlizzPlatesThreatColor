@@ -4,10 +4,6 @@ local addonName, addon = ...
 local activeNamePlates = {}
 ---当前玩家是否时坦克职责
 local isPayerTank = false
----玩家当前目标GUID
-local playerTargetGUID = nil
----玩家当前焦点GUID
-local playerFocusGUID = nil
 
 ---获取玩家职责, 如果为坦克则返回true, 如果为DPS或治疗返回false.
 ---@return boolean
@@ -109,9 +105,9 @@ local function ApplyPlateColorToUnitFrame(unitFrame)
 	if not guid then
 		return
 	end
-
-	local isTarget = guid == playerTargetGUID
-	local isFocus = guid == playerFocusGUID
+	
+	local isTarget = unitFrame.isTarget or false
+	local isFocus = unitFrame.isFocus or false
 	local color = GetPlateColor(threatStatus, isTank, isFocus, isTarget)
 
 	if color and unitFrame.HealthBarsContainer and unitFrame.HealthBarsContainer.healthBar then
@@ -138,8 +134,6 @@ local eventFrame = CreateFrame("Frame")
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("NAME_PLATE_UNIT_ADDED")
-eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-eventFrame:RegisterEvent("PLAYER_FOCUS_CHANGED")
 eventFrame:RegisterEvent("NAME_PLATE_UNIT_REMOVED")
 eventFrame:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
 eventFrame:RegisterEvent("UNIT_THREAT_SITUATION_UPDATE")
@@ -167,10 +161,6 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
 		if plate and plate.UnitFrame then
 			activeNamePlates[plate.UnitFrame] = nil
 		end
-	elseif event == "PLAYER_TARGET_CHANGED" then
-		playerTargetGUID = UnitGUID("target")
-	elseif event == "PLAYER_FOCUS_CHANGED" then
-		playerFocusGUID = UnitGUID("focus")
 	elseif event == "PLAYER_SPECIALIZATION_CHANGED" or event == "PLAYER_ENTERING_WORLD" then
 		isPayerTank = DetectPlayerGroupRole()
 		addon.UpdateAllNamePlates()
